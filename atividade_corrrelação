@@ -1,0 +1,20 @@
+# ATIVIDADE
+
+# baixando a base de dados da Correlate of War com dados sobre poder e capacidades materiais dos Estados
+
+datawar <- as.data.frame(read_csv("NMC_5_0.csv")) %>% select(-stateabb, -version,-ccode)
+
+
+
+cor(datawar) #tabela de correlaçao com todas as variáveis
+
+
+pairs(datawar) #graficos de dispersão pareados das variáveis
+
+
+# corrplot das variáveis
+
+corwar <- cor(datawar)
+corrplot(corwar, method = "number", order = 'alphabet')
+corrplot(corwar, order = 'aphabet')
+view(datawar)
