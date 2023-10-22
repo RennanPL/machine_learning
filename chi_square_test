@@ -1,0 +1,18 @@
+## Qui-Quadrado com R ##
+#Primeiro vamos carregar os pacotes
+pacman::p_load(data.table,ggplot2)
+
+## ATIVIDADE ##
+
+breast_cancer_table_2 <- table(breast_cancer$idade, breast_cancer$breast)
+
+View(breast_cancer_table_2)
+
+#Teste Qui quadrado
+breast_cancer_test2 <- chisq.test(breast_cancer_table_2) #p-valor maior do que 0.05, portanto, não rejeita-se a hipótese nula
+breast_cancer_test2$observed 
+breast_cancer_test2$expected #valor esperado muito próximo do valor real ou valor observado
+
+#Corrplot das variáveis
+
+corrplot(breast_cancer_test2$residuals, is.corr = FALSE)
