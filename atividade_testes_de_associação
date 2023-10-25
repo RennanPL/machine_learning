@@ -1,0 +1,27 @@
+# ATIVIDADE
+
+# baixando a base de dados da Correlate of War com dados sobre poder e capacidades materiais dos Estados
+
+datawar <- as.data.frame(read_csv("NMC_5_0.csv")) %>% select(-stateabb, -version,-ccode)
+
+### CRIAR FUNÇÃO PARA RODAR VÁRIAS ASSOCIAÇÕES
+
+multi.cor <- function(x, y) {
+  corr = cor(x, y) # Correlação
+  corrD = dcor(x, y) # Distance correlation
+  cos = cosine(x, y) # Distância do Cosseno 
+  maxCor = maxCorProj(x, y) # Maximal correlation
+  MIC = mine(x, y) #  Maximal Information Coefficient
+  Associações = as.data.frame(list(corr, corrD[4], cos, maxCor[1], MIC[1]))
+  names(Associações) = c('Correlação', 'Distãncia', 'Cosseno', 'Máxima', 'MIC')
+  return(Associações)
+}
+
+### plotando um gráfico de associação entre energia primária (pec) e gastos militares (milex) dos países
+
+x <- datawar$pec
+y <- datawar$milex
+
+plot(x, y)
+corList <- multi.cor(x, y)
+corList
