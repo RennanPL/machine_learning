@@ -1,0 +1,61 @@
+# pacotes
+pacman::p_load(
+  caret, ggplot2, plotly, rattle
+)
+
+# baixando a base de dados da Correlate of War com dados sobre poder e capacidades materiais dos Estados
+
+#a variável que eu escolhi para treinar foi milper ou Millitary Personel. Ou seja, qual o efetivo militar dado as outras variáveis?
+
+datawar <- as.data.frame(read_csv("NMC_5_0.csv")) %>% select(-stateabb, -version,-ccode)
+
+particaoWAR = createDataPartition(1:nrow(datawar), p=0.7) # cria a partição 70-30
+
+#treinando e testando as partes
+
+treinoWAR = datawar[particaoWAR$Resample1, ] 
+testeWAR = datawar[-particaoWAR$Resample1, ]
+
+#controlando o treinamento
+
+train.control <- trainControl(method = "cv", number = 100, verboseIter = T)
+view(datawar)
+
+#minerando e criando minha árvore de decisão
+
+WAR_RPART <- train(
+  milper ~ year + milex + irst + pec + tpop + upop,
+  data = treinoWAR, 
+  method = "rpart", 
+  trControl = train.control,
+  tuneGrid = expand.grid(cp = c(0.00362, runif(19, 0, 0.25))))
+
+#plotando a árvore de decisão
+
+plot(WAR_RPART)
+fancyRpartPlot(WAR_RPART$finalModel)
+
+#medindo a importância das variáveis
+
+plot(varImp(WAR_RPART)) #interessante notar que a variável de consumo primário de energia
+  
+cor(datawar) #tabela de correlaçao com todas as variáveis
+
+
+pairs(datawar) #graficos de dispersão pareados das variáveis
+
+#criando uma árvore de predição
+
+predicaoTree = predict(WAR_RPART, newdata = testeWAR)
+postResample(testeWAR[ , 7], predicaoTree)
+
+
+base_avaliacao <- data.frame(
+  Observado = testeWAR[ , 7],
+  Predição = predicaoTree)
+
+predicao_arvore <- base_avaliacao %>% 
+  ggplot(aes(x=Observado, y=Predição)) + 
+  geom_point() + # cria os pontos
+  geom_smooth() # cria a curva de associação
+ggplotly(predicao_arvore)
